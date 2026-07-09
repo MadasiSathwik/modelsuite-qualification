@@ -7,14 +7,30 @@ const Logo = () => (
   <img src="/modelsuite-talents.png" alt="ModelSuite Talents Logo" className="w-80 h-auto object-contain mx-auto block hover:scale-105 transition-transform duration-300" />
 );
 
+const IconEye = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconEyeOff = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+    <path d="M17.94 17.94L6.06 6.06" />
+    <path d="M9.88 9.88a3 3 0 014.24 4.24" />
+  </svg>
+);
+
 const inputCls = 'w-full bg-bg-input border border-border rounded-[10px] px-4 py-3 text-[15px] text-text-primary outline-none placeholder:text-[#4e4a6e] focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-all duration-200 font-sans hover:border-border-light';
 const labelCls = 'text-[11px] font-semibold uppercase tracking-[0.6px] text-text-muted group-focus-within:text-primary transition-colors duration-200';
 
 const RegisterPage = () => {
-  const [name, setName]       = useState('');
-  const [email, setEmail]     = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole]       = useState('Talent');
+  const [name, setName]                 = useState('');
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole]                 = useState('Talent');
   const { login }  = useAuth();
   const navigate   = useNavigate();
 
@@ -56,8 +72,18 @@ const RegisterPage = () => {
 
           <div className="flex flex-col gap-2 group">
             <label className={labelCls} htmlFor="reg-password">Password</label>
-            <input id="reg-password" type="password" placeholder="••••••••"
-              value={password} onChange={(e) => setPassword(e.target.value)} required className={inputCls} />
+            <div className="relative">
+              <input id="reg-password" type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+                value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputCls} pr-12`} />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 rounded"
+              >
+                {showPassword ? <IconEyeOff /> : <IconEye />}
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 group">
