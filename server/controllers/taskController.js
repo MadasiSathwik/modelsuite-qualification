@@ -1,4 +1,5 @@
 ﻿const Task = require('../models/Task');
+const User = require('../models/User');
 
 // @desc  Get all tasks
 // @route GET /api/tasks
@@ -41,6 +42,7 @@ const createTask = async (req, res) => {
   const { title, description, status, assignedTo, dueDate } = req.body;
 
   try {
+    // Validate due date
     if (dueDate) {
       const selectedDate = new Date(dueDate);
       const today = new Date();
@@ -52,6 +54,23 @@ const createTask = async (req, res) => {
         return res
           .status(400)
           .json({ message: "Due date cannot be in the past." });
+      }
+    }
+
+    // Validate assigned user
+    if (assignedTo) {
+      const user = await User.findById(assignedTo);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "Assigned user not found.",
+        });
+      }
+
+      if (user.role !== "Talent") {
+        return res.status(400).json({
+          message: "Tasks can only be assigned to Talent users.",
+        });
       }
     }
 
@@ -95,6 +114,23 @@ const updateTask = async (req, res) => {
       if (selectedDate < today) {
         return res.status(400).json({
           message: 'Due date cannot be in the past.',
+        });
+      }
+    }
+
+    // Validate assigned user
+    if (req.body.assignedTo) {
+      const user = await User.findById(req.body.assignedTo);
+
+      if (!user) {
+        return res.status(404).json({
+          message: 'Assigned user not found.',
+        });
+      }
+
+      if (user.role !== 'Talent') {
+        return res.status(400).json({
+          message: 'Tasks can only be assigned to Talent users.',
         });
       }
     }
