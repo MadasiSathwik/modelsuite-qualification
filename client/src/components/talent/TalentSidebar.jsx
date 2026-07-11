@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 /* ── Clean SVG line-art icons ── */
@@ -32,8 +32,6 @@ const navItems = [
 
 const TalentSidebar = () => {
   const { user, logout } = useAuth();
-  const navigate  = useNavigate();
-  const location  = useLocation();
 
   return (
     <aside className="fixed inset-y-0 left-0 w-[220px] flex flex-col z-50"
@@ -53,17 +51,16 @@ const TalentSidebar = () => {
           Menu
         </p>
 
-        {navItems.map(({ label, path, Icon }) => {
-          const isActive = location.pathname === path;
-          return (
-            <button key={path}
-              onClick={() => navigate(path)}
-              className={`nav-item ${isActive ? 'nav-active' : ''}`}>
-              <Icon />
-              <span>{label}</span>
-            </button>
-          );
-        })}
+        {navItems.map(({ label, path, Icon }) => (
+          <NavLink
+            key={path}
+            to={path}
+            end
+            className={({ isActive }) => `nav-item ${isActive ? 'nav-active' : ''}`}>
+            <Icon />
+            <span>{label}</span>
+          </NavLink>
+        ))}
       </nav>
 
       {/* Footer */}
