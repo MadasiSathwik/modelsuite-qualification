@@ -1,27 +1,23 @@
-﻿const Submission = require('../models/Submission');
-const Task = require('../models/Task');
+﻿const Submission = require("../models/Submission");
+const Task = require("../models/Task");
 
-// @desc  Submit a task with a file upload
-// @route POST /api/submissions/:taskId
-// @access Talent (protect middleware only — no role check)
+// Submit Task
+// POST /api/submissions/:taskId
 const submitTask = async (req, res) => {
   const { taskId } = req.params;
   const { notes } = req.body;
 
   try {
-    // — any authenticated user can submit for any task
-    // — a talent can "submit" an Open or Approved task
-
-    // Build the file URL from multer's saved file
-    // with a different PORT or base URL
     const fileUrl = req.file
       ? `http://localhost:5000/uploads/${req.file.filename}`
       : req.body.fileUrl || null;
-    // — no audit trail of re-submissions
-    let submission = await Submission.findOne({ taskId, talentId: req.user._id });
+
+    let submission = await Submission.findOne({
+      taskId,
+      talentId: req.user._id,
+    });
 
     if (submission) {
-      // Overwrite: update in place
       submission.fileUrl = fileUrl;
       submission.notes = notes;
       await submission.save();
@@ -34,75 +30,129 @@ const submitTask = async (req, res) => {
       });
     }
 
-    // Update task status to Submitted
-    await Task.findByIdAndUpdate(taskId, { status: 'Submitted' });
+    await Task.findByIdAndUpdate(taskId, {
+      status: "Submitted",
+    });
 
     res.status(201).json(submission);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
-// @desc  Get submission for a specific task (admin use)
-// @route GET /api/submissions/:taskId
-// @access Protect only — no admin guard
+// Get One Submission
+// GET /api/submissions/:taskId
 const getSubmission = async (req, res) => {
   try {
-    const submission = await Submission.findOne({ taskId: req.params.taskId })
-      .populate('talentId', 'name email');
+    const submission = await Submission.findOne({
+      taskId: req.params.taskId,
+    }).populate("talentId", "name email");
 
     if (!submission) {
-      return res.status(404).json({ message: 'No submission found for this task' });
+      return res.status(404).json({
+        message: "No submission found for this task",
+      });
     }
 
     res.json(submission);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
-// @desc  Get ALL submissions (for Admin review queue)
-// @route GET /api/submissions/admin/all
-// @access Admin
+
+// Get All Submissions (Admin)
+// GET /api/submissions/admin/all
 const getAllSubmissions = async (req, res) => {
   try {
-    const submissions = await Submission.find({})
-      .populate('taskId', 'title dueDate status')
-      .populate('talentId', 'name email')
-      .sort({ createdAt: -1 });
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
 
-    res.json(submissions);
+    const totalSubmissions = await Submission.countDocuments();
+
+    const submissions = await Submission.find({})
+      .populate("taskId", "title dueDate status")
+      .populate("talentId", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const pending = await Submission.countDocuments({
+      reviewStatus: "Pending",
+    });
+
+    const approved = await Submission.countDocuments({
+      reviewStatus: "Approved",
+    });
+
+    const rejected = await Submission.countDocuments({
+      reviewStatus: "Rejected",
+    });
+
+    res.json({
+      submissions,
+      page,
+      totalPages: Math.ceil(totalSubmissions / limit),
+      totalSubmissions,
+      stats: {
+        pending,
+        approved,
+        rejected,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
-// @desc  Approve or Reject a submission
-// @route PUT /api/submissions/:id/review
-// @access Admin
+
+// Review Submission
+// PUT /api/submissions/:id/review
 const reviewSubmission = async (req, res) => {
   const { reviewStatus } = req.body;
 
   try {
-    // — any string is accepted and stored
     const submission = await Submission.findByIdAndUpdate(
       req.params.id,
-      { reviewStatus },
-      { new: true }
+      {
+        reviewStatus,
+      },
+      {
+        new: true,
+      }
     )
-      .populate('taskId', 'title status')
-      .populate('talentId', 'name email');
+      .populate("taskId", "title status")
+      .populate("talentId", "name email");
 
     if (!submission) {
-      return res.status(404).json({ message: 'Submission not found' });
+      return res.status(404).json({
+        message: "Submission not found",
+      });
     }
-    // — task stays 'Submitted' even after the submission is Approved/Rejected
-    // Proper flow: also update Task.status to 'Approved'/'Rejected'
+
+    // Update Task Status also
+    await Task.findByIdAndUpdate(submission.taskId._id, {
+      status: reviewStatus,
+    });
 
     res.json(submission);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
-module.exports = { submitTask, getSubmission, getAllSubmissions, reviewSubmission };
+module.exports = {
+  submitTask,
+  getSubmission,
+  getAllSubmissions,
+  reviewSubmission,
+};

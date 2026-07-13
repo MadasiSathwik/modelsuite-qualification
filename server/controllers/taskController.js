@@ -6,14 +6,44 @@ const User = require('../models/User');
 // @access Admin
 const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({})
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name')
-      .sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    res.json(tasks);
+    const totalTasks = await Task.countDocuments();
+
+    const openTasks = await Task.countDocuments({ status: "Open" });
+
+    const submittedTasks = await Task.countDocuments({
+      status: "Submitted",
+    });
+
+    const approvedTasks = await Task.countDocuments({
+      status: "Approved",
+    });
+
+    const tasks = await Task.find({})
+      .populate("assignedTo", "name email")
+      .populate("createdBy", "name")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+    tasks,
+    page,
+    totalPages: Math.ceil(totalTasks / limit),
+    totalTasks,
+    stats: {
+      open: openTasks,
+      submitted: submittedTasks,
+      approved: approvedTasks,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 

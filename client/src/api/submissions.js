@@ -1,14 +1,23 @@
-﻿import API from './axios';
-// but the token interceptor in axios.js must still fire (it does via the shared instance)
+﻿import API from "./axios";
+
+// Talent submits task
 export const submitTask = (taskId, formData) =>
   API.post(`/submissions/${taskId}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
-export const fetchSubmission = (taskId) => API.get(`/submissions/${taskId}`);
+// Admin
+export const fetchAllSubmissions = (page = 1, limit = 5) =>
+  API.get("/submissions/admin/all", {
+    params: { page, limit },
+  });
 
-export const fetchAllSubmissions = () => API.get('/submissions/admin/all');
+export const fetchSubmission = (taskId) =>
+  API.get(`/submissions/${taskId}`);
 
 export const reviewSubmission = (id, reviewStatus) =>
-  API.put(`/submissions/${id}/review`, { reviewStatus });
-
+  API.put(`/submissions/${id}/review`, {
+    reviewStatus,
+  });

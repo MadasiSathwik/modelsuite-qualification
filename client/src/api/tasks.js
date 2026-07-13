@@ -1,7 +1,11 @@
-﻿import API from './axios';
+﻿import API from "./axios";
 
-export const fetchAllTasks = () => API.get('/tasks');
-export const createTask = (data) => API.post('/tasks', data);
-export const updateTask = (id, data) => API.put(`/tasks/${id}`, data);
+export const fetchAllTasks = (page = 1, limit = 2) =>
+  API.get("/tasks", {
+    params: { page, limit },
+  });
+export const fetchTaskById = (id) => API.get(`/tasks/${id}`);
+export const createTask = (task) => API.post("/tasks", task);
+export const updateTask = (id, task) => API.put(`/tasks/${id}`, task);
 export const deleteTask = (id) => API.delete(`/tasks/${id}`);
-export const fetchTalents = () => API.get('/users/talents');
+export const fetchTalents = () => API.get("/users/talents");

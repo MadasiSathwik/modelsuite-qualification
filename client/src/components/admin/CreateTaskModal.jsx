@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { createTask, fetchTalents } from '../../api/tasks';
 
 const STATUS_OPTIONS = ['Open', 'Claimed', 'Submitted', 'Approved', 'Rejected'];
@@ -10,13 +10,21 @@ const CreateTaskModal = ({ onClose, onCreated }) => {
   const [form, setForm] = useState({ title: '', description: '', status: 'Open', assignedTo: '', dueDate: '' });
   const [talents, setTalents] = useState([]);
   const [loadingTalents, setLoadingTalents] = useState(false);
-  useState(() => {
-    setLoadingTalents(true);
-    fetchTalents()
-      .then(({ data }) => setTalents(data))
-      .catch(() => alert('Failed to load talents'))
-      .finally(() => setLoadingTalents(false));
-  }, []);
+
+ useEffect(() => {
+  setLoadingTalents(true);
+
+  fetchTalents()
+    .then(({ data }) => {
+      console.log("Talents:", data);
+      setTalents(data);
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("Failed to load talents");
+    })
+    .finally(() => setLoadingTalents(false));
+}, []);
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
