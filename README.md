@@ -246,6 +246,75 @@ The app will open at `http://localhost:5173`
 ---
 
 <<<<<<< HEAD
+=======================================================================================
+---
+
+# ✨ Features Implemented
+
+## Authentication
+- JWT-based Authentication
+- Role-based Access Control (Admin & Talent)
+- Secure Login and Registration
+
+## Admin Features
+- Dashboard with Task Statistics
+- Create, Edit and Delete Tasks
+- Assign Tasks to Talents
+- Search Tasks
+- Filter Tasks by Status
+- Pagination
+- View All Talent Submissions
+- Approve / Reject Submissions
+- Live Dashboard Updates
+
+## Talent Features
+- View Available Tasks
+- Claim Tasks
+- View Assigned Tasks
+- Submit Tasks with File Upload
+- Add Submission Notes
+- Track Submission Status
+
+## Submission Workflow
+- Upload Assignment Files
+- Review Queue for Admin
+- Approve / Reject Workflow
+- Task Status Synchronization
+- Submission Statistics
+
+## Technical Features
+- RESTful API
+- JWT Authentication
+- MongoDB with Mongoose
+- Multer File Upload
+- Pagination
+- Search & Filtering
+- Responsive UI
+- Protected Routes
+
+---
+
+# 📸 Screenshots
+
+Add screenshots of:
+
+- Login Page
+- Admin Dashboard
+- Talent Dashboard
+- Task Creation
+- Task Submission
+- Submission Review
+- Approval & Rejection Flow
+
+---
+
+# 👨‍💻 Developer
+
+**Sathwik Madasi**
+
+=======================================================================================
+
+
 ##  Contribution Guidelines
 
 **This repository is used for candidate assessment as part of our hiring process.**
